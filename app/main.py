@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from routers import stock
+from routers import stocks
 
 app = FastAPI()
 
@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(stock.router, prefix="/api/v1")
+app.include_router(stocks.router, prefix="/api/v1")
 
 
 @app.get("/")

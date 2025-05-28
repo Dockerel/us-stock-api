@@ -1,6 +1,7 @@
 import datetime as dt
 import FinanceDataReader as fdr
 from dateutil.relativedelta import relativedelta
+import requests
 
 
 def get_latest_stock(ticker):
@@ -15,7 +16,7 @@ def get_latest_stock(ticker):
         except KeyError:
             now -= dt.timedelta(days=1)
         except Exception:
-            return [400, "유효하지 않은 티커입니다."]
+            return [400, []]
 
 
 def get_stock(ticker, fromDate, toDate):
@@ -25,10 +26,10 @@ def get_stock(ticker, fromDate, toDate):
         df = df.reset_index()
         return [200, df.to_dict(orient="records")]
     except Exception:
-        return [400, "유효하지 않은 티커 혹은 날짜입니다."]
+        return [400, []]
 
 
-def check_stock_ticker(ticker):
+def check_stockName(ticker):
     try:
         now = dt.datetime.now()
         one_year_ago = now - relativedelta(years=1)
@@ -37,3 +38,13 @@ def check_stock_ticker(ticker):
         return [200, True]
     except Exception as e:
         return [200, False]
+
+
+def resolve_stockName(stockKeyword):
+    try:
+        url = f"https://ac.stock.naver.com/ac?target=stock%2Cipo%2Cindex%2Cmarketindicator&q={stockKeyword}"
+        response = requests.get(url)
+        code = response.json().get("items")[0].get("code")
+        return [200, code]
+    except Exception as e:
+        return [400, "unknown"]
