@@ -5,19 +5,32 @@ import requests
 
 
 def get_latest_stock(ticker):
+    reps = 0
     now = dt.datetime.now()
-    while True:
+    while reps < 10:
         try:
             date_str = now.strftime("%Y-%m-%d")
             df = fdr.DataReader(ticker, date_str)
-            if len(df)==0:
+            if len(df) == 0:
                 now -= dt.timedelta(days=1)
+                reps += 1
                 continue
-            df.index.name = "Date"
-            df = df.reset_index()
-            return [200, df.to_dict(orient="records")]
-        except Exception:
-            return [400, []]
+
+            # 간단하게: 각 컬럼을 리스트로 변환
+            records = []
+            for i in range(len(df)):
+                record = {"Close": float(df["Close"].iloc[i]), "Date": now.isoformat()}
+                records.append(record)
+
+            return [200, records]
+
+        except Exception as e:
+            print(f"Exception: {e}")
+            now -= dt.timedelta(days=1)
+            reps += 1
+            continue
+
+    return [400, []]
 
 
 def get_stock(ticker, fromDate, toDate):
