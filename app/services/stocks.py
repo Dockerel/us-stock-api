@@ -10,11 +10,12 @@ def get_latest_stock(ticker):
         try:
             date_str = now.strftime("%Y-%m-%d")
             df = fdr.DataReader(ticker, date_str)
+            if len(df)==0:
+                now -= dt.timedelta(days=1)
+                continue
             df.index.name = "Date"
             df = df.reset_index()
             return [200, df.to_dict(orient="records")]
-        except KeyError:
-            now -= dt.timedelta(days=1)
         except Exception:
             return [400, []]
 
